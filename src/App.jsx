@@ -60,7 +60,22 @@ export default function App() {
         break;
     }
   };
+// Add this right below handleLoadCustomData inside App.jsx
+  useEffect(() => {
+    const defaultArray = [38, 27, 43, 3, 9, 82, 10, 19, 50, 12];
+    const defaultGraph = { A: ['B', 'C'], B: ['A', 'D', 'E'], C: ['A', 'F'], D: ['B'], E: ['B'], F: ['C'] };
+    const defaultWeighted = { A: { B: 4, C: 2 }, B: { A: 4, D: 3, E: 1 }, C: { A: 2, F: 5 }, D: { B: 3 }, E: { B: 1 }, F: { C: 5 } };
 
+    if (activeAlgo === 'bubbleSort') loadAlgorithm(bubbleSortGenerator, defaultArray);
+    if (activeAlgo === 'mergeSort') loadAlgorithm(mergeSortGenerator, defaultArray);
+    if (activeAlgo === 'quickSort') loadAlgorithm(quickSortGenerator, defaultArray);
+    if (activeAlgo === 'binarySearch') loadAlgorithm(binarySearchGenerator, [2, 5, 8, 12, 16, 23, 38, 56, 72, 91], 23);
+    if (activeAlgo === 'bfs') loadAlgorithm(bfsGenerator, defaultGraph, 'A');
+    if (activeAlgo === 'dfs') loadAlgorithm(dfsGenerator, defaultGraph, 'A');
+    if (activeAlgo === 'dijkstra') loadAlgorithm(dijkstraGenerator, defaultWeighted, 'A');
+    if (activeAlgo === 'astar') loadAlgorithm(astarGenerator, defaultWeighted, 'A', 'F');
+    if (activeAlgo === 'kruskal') loadAlgorithm(kruskalGenerator, defaultWeighted);
+  }, [activeAlgo, loadAlgorithm]);
   const tabs = [
     { id: 'bubbleSort', label: 'Bubble Sort' },
     { id: 'mergeSort', label: 'Merge Sort' },

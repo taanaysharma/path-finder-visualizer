@@ -9,8 +9,7 @@ export default function DataInput({ activeAlgo, loadCustomData }) {
   const [graphInput, setGraphInput] = useState(defaultGraph);
   const [startNodeInput, setStartNodeInput] = useState('A');
 
-  const isArrayAlgo = activeAlgo === 'quickSort' || activeAlgo === 'binarySearch';
-
+  const isArrayAlgo = ['quickSort', 'binarySearch', 'bubbleSort', 'mergeSort'].includes(activeAlgo);
   const handleRun = () => {
     if (isArrayAlgo) {
       // 1. Parse the string into an array of integers
