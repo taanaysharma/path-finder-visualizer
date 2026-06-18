@@ -18,16 +18,26 @@ export function useEngine() {
 
   // --- Core Engine Functions ---
   const loadAlgorithm = useCallback((generatorFunction, ...args) => {
-    pause();
-    // Initialize the generator with the provided arguments (e.g., graph, startNode)
-    generatorRef.current = generatorFunction(...args);
-    setHistory([]);
-    setCurrentIndex(-1);
-    setIsFinished(false);
+    pause(); // Stop any currently running algorithm
     
-    // Auto-generate the 0th step (initial state)
-    stepForward();
-  }, []);
+    // Initialize the new generator
+    const newGenerator = generatorFunction(...args);
+    generatorRef.current = newGenerator;
+    
+    // Manually execute the 0th step (initial state) right now
+    // This bypasses the stale closure variables inside stepForward
+    const { value, done } = newGenerator.next();
+    
+    if (done) {
+      setHistory([]);
+      setCurrentIndex(-1);
+      setIsFinished(true);
+    } else {
+      setHistory([value]); // Directly set the first frame
+      setCurrentIndex(0);
+      setIsFinished(false);
+    }
+  }, [pause]);
 
   const stepForward = useCallback(() => {
     if (!generatorRef.current || isFinished) return;
