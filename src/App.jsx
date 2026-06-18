@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useState } from 'react';
 import { useEngine } from './hooks/useEngine';
 import { binarySearchGenerator } from './algorithms/binarySearch';
 import { bfsGenerator } from './algorithms/bfs';
@@ -9,26 +9,36 @@ import ArrayVisualizer from './components/visualizer/ArrayVisualizer';
 import GraphVisualizer from './components/visualizer/GraphVisualizer';
 import QuickSortVisualizer from './components/visualizer/QuickSortVisualizer';
 import CallStack from './components/debugger/CallStack';
-import ControlBar from './components/ui/ControlBar.jsx';
+import ControlBar from './components/ui/ControlBar';
+import DataInput from './components/ui/DataInput'; // <-- IMPORT THE NEW COMPONENT
 
 export default function App() {
   const engine = useEngine();
   const { currentState, loadAlgorithm } = engine;
-  const [activeAlgo, setActiveAlgo] = useState('dijkstra');
+  const [activeAlgo, setActiveAlgo] = useState('quickSort');
 
-  // Standard Adjacency List for BFS/DFS
-  const standardGraph = { A: ['B', 'C'], B: ['A', 'D', 'E'], C: ['A', 'F'], D: ['B'], E: ['B'], F: ['C'] };
-  
-  // Weighted Adjacency List for Dijkstra
-  const weightedGraph = { A: { B: 4, C: 2 }, B: { A: 4, D: 3, E: 1 }, C: { A: 2, F: 5 }, D: { B: 3 }, E: { B: 1 }, F: { C: 5 } };
-
-  useEffect(() => {
-    if (activeAlgo === 'binarySearch') loadAlgorithm(binarySearchGenerator, [2, 5, 8, 12, 16, 23, 38, 56, 72, 91], 23);
-    else if (activeAlgo === 'quickSort') loadAlgorithm(quickSortGenerator, [38, 27, 43, 3, 9, 82, 10, 19, 50, 12]);
-    else if (activeAlgo === 'bfs') loadAlgorithm(bfsGenerator, standardGraph, 'A');
-    else if (activeAlgo === 'dfs') loadAlgorithm(dfsGenerator, standardGraph, 'A');
-    else if (activeAlgo === 'dijkstra') loadAlgorithm(dijkstraGenerator, weightedGraph, 'A');
-  }, [activeAlgo, loadAlgorithm]);
+  // New handler to process data from the DataInput component
+  const handleLoadCustomData = (algoType, parsedData, extraParam) => {
+    switch (algoType) {
+      case 'binarySearch':
+        loadAlgorithm(binarySearchGenerator, parsedData, extraParam); // extraParam is 'target'
+        break;
+      case 'quickSort':
+        loadAlgorithm(quickSortGenerator, parsedData);
+        break;
+      case 'bfs':
+        loadAlgorithm(bfsGenerator, parsedData, extraParam); // extraParam is 'startNode'
+        break;
+      case 'dfs':
+        loadAlgorithm(dfsGenerator, parsedData, extraParam);
+        break;
+      case 'dijkstra':
+        loadAlgorithm(dijkstraGenerator, parsedData, extraParam);
+        break;
+      default:
+        break;
+    }
+  };
 
   const tabs = [
     { id: 'quickSort', label: 'QuickSort' },
@@ -40,6 +50,7 @@ export default function App() {
 
   return (
     <div className="min-h-screen bg-slate-900 text-slate-100 flex flex-col font-sans">
+      {/* Header */}
       <header className="p-4 border-b border-slate-800 bg-slate-950 flex flex-col xl:flex-row gap-4 items-center justify-between z-20 shadow-md">
         <h1 className="text-xl font-bold tracking-tight text-emerald-400">
           Algorithmic Visualizer <span className="text-slate-500 font-normal text-sm ml-2">| Step Debugger</span>
@@ -57,15 +68,23 @@ export default function App() {
         </div>
       </header>
 
+      {/* NEW: Data Input Panel */}
+      <DataInput activeAlgo={activeAlgo} loadCustomData={handleLoadCustomData} />
+
+      {/* Main Workspace */}
       <main className="flex-1 flex flex-col lg:flex-row overflow-hidden">
+        {/* Left Side: Visualizer Canvas */}
         <section className="flex-[2] p-4 border-r border-slate-800 relative bg-slate-900 overflow-hidden flex flex-col gap-4">
-          {currentState && (
-             <div className="bg-slate-800/90 border border-slate-700 p-4 rounded-lg shadow-xl shrink-0">
-               <h3 className="text-xs font-bold text-amber-400 uppercase tracking-wider mb-1">Execution Step Explanation</h3>
-               <p className="text-sm text-slate-300 leading-relaxed">{currentState.explanation}</p>
-             </div>
-          )}
           
+          {/* Explanation Tooltip */}
+          <div className="bg-slate-800/90 border border-slate-700 p-4 rounded-lg shadow-xl shrink-0 min-h-[5rem]">
+             <h3 className="text-xs font-bold text-amber-400 uppercase tracking-wider mb-1">Execution Step Explanation</h3>
+             <p className="text-sm text-slate-300 leading-relaxed">
+               {currentState ? currentState.explanation : 'Enter data above and click "Load Data" to begin visualization.'}
+             </p>
+          </div>
+          
+          {/* Canvas */}
           <div className="flex-1 border border-slate-700/50 rounded-lg bg-slate-800/30 overflow-hidden relative">
             {(activeAlgo === 'binarySearch') && <ArrayVisualizer currentState={currentState} />}
             {(activeAlgo === 'quickSort') && <QuickSortVisualizer currentState={currentState} />}
@@ -73,6 +92,7 @@ export default function App() {
           </div>
         </section>
 
+        {/* Right Side: Debugger Panel (Remains unchanged from your previous setup) */}
         <section className="flex-1 p-4 bg-slate-950 flex flex-col gap-4">
           <div className="flex-1 border border-slate-800 rounded-lg p-4 bg-slate-900/50 flex flex-col min-h-0">
             <h2 className="text-sm font-semibold text-slate-400 uppercase tracking-wider mb-2 flex items-center gap-2">
@@ -119,6 +139,7 @@ export default function App() {
         </section>
       </main>
 
+      {/* Footer / Control Bar */}
       <footer className="h-20 border-t border-slate-800 bg-slate-950 flex items-center shadow-[0_-10px_30px_rgba(0,0,0,0.5)] z-30">
         <ControlBar engine={engine} />
       </footer>
