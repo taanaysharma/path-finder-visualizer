@@ -9,7 +9,7 @@ import ArrayVisualizer from './components/visualizer/ArrayVisualizer';
 import GraphVisualizer from './components/visualizer/GraphVisualizer';
 import QuickSortVisualizer from './components/visualizer/QuickSortVisualizer';
 import CallStack from './components/debugger/CallStack';
-import ControlBar from './components/ui/ControlBar';
+import ControlBar from './components/ui/ControlBar.jsx';
 
 export default function App() {
   const engine = useEngine();
